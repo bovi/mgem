@@ -1,4 +1,4 @@
 mrblist
 =======
 
-A package list of all mruby GEMs
+A list of mruby libraries which can be used with mrbgems.
