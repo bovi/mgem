@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+require "#{File.dirname(__FILE__)}/../lib/gem"
+
+gems = MrbgemList.new("#{File.dirname(__FILE__)}/../gems/")
+
+if ARGV[0] == 'size'
+  puts "Total # of GEMs: #{gems.size}"
+elsif ARGV[0] == 'list'
+  gems.each do |gem|
+    puts "#{gem.name}\t#{gem.description}"
+  end
+elsif ARGV[0] == 'search'
+  gems.search(ARGV[1]).each do |gem|
+    puts "#{gem.name}\t#{gem.description}"
+  end
+end
