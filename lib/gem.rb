@@ -1,5 +1,17 @@
 require 'yaml'
 
+def load_gems
+  config = {}
+  mgem_root = "#{File.dirname(__FILE__)}/.."
+
+  config[:mgem_root] = "#{File.dirname(__FILE__)}/.."
+  config[:gems_dir] = "#{config[:mgem_root]}/gems"
+  config[:gems_active] = "#{ENV['HOME']}/mrbgems/GEMS.active"
+  config[:gems_build_dir] = "#{ENV['HOME']}/mrbgems/g"
+
+  MrbgemList.new(config)
+end
+
 class MrbgemData
   def initialize(gem_data)
     @gem_data = gem_data
@@ -37,8 +49,9 @@ class MrbgemData
 end
 
 class MrbgemList
-  def initialize(gem_dir)
-    @gems = load_gems(gem_dir)
+  def initialize(config)
+    @config = config
+    @gems = load_gems(@config[:gems_dir])
   end
 
   def each(&block)
@@ -46,14 +59,62 @@ class MrbgemList
   end
 
   def search(pattern, *fields)
-     @gems.select do |mrbgem|
+    @gems.select do |mrbgem|
       mrbgem.search pattern, fields
     end
   end
 
+  def active
+    f = File.open(@config[:gems_active], 'r+')
+    active_gems = f.each_line.map {|g| File.basename(g.chomp)}
+    @gems.select {|g| active_gems.include? g.name}
+  end
+
   def size; @gems.size; end
 
+  def activate(gem_name)
+    if check_gem(gem_name)
+      gems = active
+      gems << @gems.select {|g| g.name == gem_name}
+      gems.uniq!
+      save_active_gems(gems)
+      puts "'#{gem_name}' activated!"
+    else
+      puts "'#{gem_name}' NOT activated!"
+    end
+  end
+
+  def deactivate(gem_name)
+    if check_gem(gem_name)
+      gems = active.reject {|g| g.name == gem_name}
+      save_active_gems(gems)
+      puts "'#{gem_name}' deactivated!"
+    else
+      puts "'#{gem_name}' NOT deactivated!"
+    end
+  end
+
   private
+
+  def check_gem(gem_name)
+    if gem_name == "" or gem_name.nil?
+      puts "Error: Empty GEM name!"
+      false
+    elsif not @gems.find_index {|g| g.name == gem_name}
+      puts "Error: GEM doesn't exist!"
+      false
+    else
+      true
+    end
+  end
+
+  def save_active_gems(active_gem_list)
+    File.open(@config[:gems_active], 'w+') do |f|
+      active_gem_list.flatten.uniq.each do |mrbgem|
+        f.puts "#{@config[:gems_build_dir]}/#{mrbgem.name}"
+      end
+    end
+  end
 
   def load_gems(gem_dir)
     gems = []

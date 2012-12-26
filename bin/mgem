@@ -2,16 +2,68 @@
 
 require "#{File.dirname(__FILE__)}/../lib/gem"
 
-gems = MrbgemList.new("#{File.dirname(__FILE__)}/../gems/")
+gems = load_gems
 
-if ARGV[0] == 'size'
+info_proc = lambda do |obj| 
+  puts "  #{obj.name.ljust(20)}#{obj.description}"
+end
+
+detail_info_proc = lambda do |obj|
+  puts <<INFO
+  Name:        #{obj.name}
+  Author:      #{obj.author}
+  Description: #{obj.description}
+  Website:     #{obj.website}
+  Repository:  #{obj.repository}
+  Protocol:    #{obj.protocol}
+
+INFO
+end
+
+def list_active_gems(current_gems)
+  puts "List of active GEMs:"
+  current_gems.active.each do |obj|
+    puts "  [X] #{obj.name.ljust(20)}#{obj.description}" 
+  end
+  puts
+end
+
+if ARGV[0] == 'info' or ARGV[0] == 'detail'
+  puts "Detail information of '#{ARGV[1]}':"
+  gems.search(ARGV[1], :name).each {|gem| detail_info_proc.call(gem) }
+elsif ARGV[0] == 'size'
   puts "Total # of GEMs: #{gems.size}"
 elsif ARGV[0] == 'list'
-  gems.each do |gem|
-    puts "#{gem.name}\t#{gem.description}"
+  if ARGV[1] == 'active'
+    list_active_gems(gems)
+  else
+    puts "List of all GEMs:"
+    gems.each { |gem| info_proc.call(gem) }
   end
+elsif ARGV[0] == 'add'
+  gems.activate(ARGV[1])
+  puts
+  list_active_gems(gems)
+elsif ARGV[0] == 'rm'
+  gems.deactivate(ARGV[1])
+  puts
+  list_active_gems(gems)
 elsif ARGV[0] == 'search'
-  gems.search(ARGV[1]).each do |gem|
-    puts "#{gem.name}\t#{gem.description}"
-  end
+  puts "Search result for '#{ARGV[1]}':"
+  gems.search(ARGV[1]).each {|gem| info_proc.call(gem) }
+else
+  puts <<INFO
+mgem is a library manager for mruby
+
+Usage:
+  mgem size              How many GEMs are available?
+  mgem list [active]     List GEMs
+  mgem info *pattern*    Show detail information about a GEM
+  mgem add *name*        Activate a GEM (GEMS.active)
+  mgem rm *name*         De-Activate a GEM (GEMS.active)
+  mgem search *pattern*  Search for GEMs
+
+Website:
+  https://github.com/bovi/mrblist
+INFO
 end
