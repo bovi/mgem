@@ -1,4 +1,4 @@
-mrblist
+mgem
 =======
 
-A list of mruby libraries which can be used with mrbgems.
+A program to manage GEMs for mruby.
