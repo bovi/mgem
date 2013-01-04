@@ -91,8 +91,7 @@ class MrbgemList
 
   def activate(gem_name)
     if check_gem(gem_name)
-      gems = active
-      gems << @gems.select {|g| g.name == gem_name}
+      gems = active + @gems.select {|g| g.name == gem_name}
       gems.uniq!
       save_active_gems(gems)
       puts "'#{gem_name}' activated!"
