@@ -1,7 +1,7 @@
 require 'yaml'
 require 'fileutils'
 
-MGEM_VERSION = '0.0.3'
+MGEM_VERSION = '0.0.4'
 
 MGEM_DIR = '.mgem'
 GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
