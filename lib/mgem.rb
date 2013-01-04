@@ -92,7 +92,6 @@ class MrbgemList
   def activate(gem_name)
     if check_gem(gem_name)
       gems = active + @gems.select {|g| g.name == gem_name}
-      gems.uniq!
       save_active_gems(gems)
       puts "'#{gem_name}' activated!"
     else
@@ -131,7 +130,7 @@ class MrbgemList
 
   def save_active_gems(active_gem_list)
     File.open(@config[:mgem_active], 'w+') do |f|
-      active_gem_list.flatten.uniq.each do |mrbgem|
+      active_gem_list.uniq.each do |mrbgem|
         f.puts mrbgem.name
       end
     end
