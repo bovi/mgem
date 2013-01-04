@@ -1,15 +1,32 @@
 require 'yaml'
+require 'fileutils'
+
+MGEM_VERSION = '0.0.2'
+
+MGEM_DIR = '.mgem'
+GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
+GEMS_LIST = 'mgem-list'
+GEMS_REPO = 'https://github.com/bovi/mgem-list.git'
 
 def load_gems
   config = {}
-  mgem_root = "#{File.dirname(__FILE__)}/.."
+  config[:mgem_dir] = [ENV["HOME"], MGEM_DIR].join File::SEPARATOR
+  config[:mgem_active] = [config[:mgem_dir], GEMS_ACTIVE].join File::SEPARATOR
+  config[:mgem_list] = [config[:mgem_dir], GEMS_LIST].join File::SEPARATOR
 
-  config[:mgem_root] = "#{File.dirname(__FILE__)}/.."
-  config[:gems_dir] = "#{config[:mgem_root]}/gems"
-  config[:gems_active] = "#{ENV['HOME']}/mrbgems/GEMS.active"
-  config[:gems_build_dir] = "#{ENV['HOME']}/mrbgems/g"
+  initialize_mgem_list(config)
 
   MrbgemList.new(config)
+end
+
+def initialize_mgem_list(config = {})
+  unless File.exists? config[:mgem_list]
+    `git clone #{GEMS_REPO} #{config[:mgem_list]}`
+  end
+
+  unless File.exists? config[:mgem_active]
+    FileUtils.touch config[:mgem_active]
+  end
 end
 
 class MrbgemData
@@ -20,7 +37,7 @@ class MrbgemData
   def search(pattern, *fields)
     fields.flatten!
     if fields == []
-      fields = [:name, :description, :author, :website]
+      fields = [:name, :description]
     elsif not fields.respond_to? :each
       fields = [fields]
     end
@@ -51,7 +68,7 @@ end
 class MrbgemList
   def initialize(config)
     @config = config
-    @gems = load_gems(@config[:gems_dir])
+    @gems = get_gems(@config[:mgem_list])
   end
 
   def each(&block)
@@ -65,7 +82,7 @@ class MrbgemList
   end
 
   def active
-    f = File.open(@config[:gems_active], 'r+')
+    f = File.open(@config[:mgem_active], 'r+')
     active_gems = f.each_line.map {|g| File.basename(g.chomp)}
     @gems.select {|g| active_gems.include? g.name}
   end
@@ -94,6 +111,12 @@ class MrbgemList
     end
   end
 
+  def update!
+    git_dir = [@config[:mgem_list], '.git'].join File::SEPARATOR
+    `git --git-dir=#{git_dir} fetch`
+    `git --git-dir=#{git_dir} merge origin/master`
+  end
+
   private
 
   def check_gem(gem_name)
@@ -109,19 +132,20 @@ class MrbgemList
   end
 
   def save_active_gems(active_gem_list)
-    File.open(@config[:gems_active], 'w+') do |f|
+    File.open(@config[:mgem_active], 'w+') do |f|
       active_gem_list.flatten.uniq.each do |mrbgem|
-        f.puts "#{@config[:gems_build_dir]}/#{mrbgem.name}"
+        f.puts mrbgem.name
       end
     end
   end
 
-  def load_gems(gem_dir)
+  def get_gems(gem_dir)
     gems = []
     Dir.foreach(gem_dir) do |filename|
       next unless filename =~ /\.gem$/
 
-      gems << MrbgemData.new(YAML.load_file("#{gem_dir}/#{filename}"))
+      yaml_gems = YAML.load_file([gem_dir, filename].join(File::SEPARATOR))
+      gems << MrbgemData.new(yaml_gems)
     end
     gems
   end
