@@ -1,7 +1,7 @@
 require 'yaml'
 require 'fileutils'
 
-MGEM_VERSION = '0.0.2'
+MGEM_VERSION = '0.0.3'
 
 MGEM_DIR = '.mgem'
 GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
@@ -91,8 +91,7 @@ class MrbgemList
 
   def activate(gem_name)
     if check_gem(gem_name)
-      gems = active
-      gems << @gems.select {|g| g.name == gem_name}
+      gems = active + @gems.select {|g| g.name == gem_name}
       gems.uniq!
       save_active_gems(gems)
       puts "'#{gem_name}' activated!"
@@ -113,8 +112,7 @@ class MrbgemList
 
   def update!
     git_dir = [@config[:mgem_list], '.git'].join File::SEPARATOR
-    `git --git-dir=#{git_dir} fetch`
-    `git --git-dir=#{git_dir} merge origin/master`
+    `git --git-dir=#{git_dir} --work-tree=#{@config[:mgem_list]} pull`
   end
 
   private

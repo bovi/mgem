@@ -5,7 +5,7 @@ require "#{File.dirname(__FILE__)}/../lib/mgem"
 gems = load_gems unless ARGV[0] == 'help'
 
 info_proc = lambda do |obj| 
-  puts "  #{obj.name.ljust(20)}#{obj.description}"
+  puts "  #{obj.name.ljust(30)}#{obj.description}"
 end
 
 detail_info_proc = lambda do |obj|
