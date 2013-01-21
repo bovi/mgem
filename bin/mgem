@@ -53,8 +53,13 @@ elsif ARGV[0] == 'search'
   gems.search(ARGV[1]).each {|gem| info_proc.call(gem) }
 elsif ARGV[0] == 'update'
   puts 'Update list of GEMs...'
+  amount = gems.size
   gems.update!
-  puts 'DONE!'
+  gems = load_gems
+  new_gems = gems.size - amount
+  if new_gems > 0
+    puts "#{new_gems} new GEMs!"
+  end
 elsif ARGV[0] == 'config'
   puts <<__CONFIG__
 MRuby::Build.new do |conf|

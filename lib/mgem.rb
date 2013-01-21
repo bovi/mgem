@@ -1,7 +1,8 @@
 require 'yaml'
 require 'fileutils'
+require "stringio"
 
-MGEM_VERSION = '0.0.4'
+MGEM_VERSION = '0.1.0'
 
 MGEM_DIR = '.mgem'
 GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
@@ -21,7 +22,9 @@ end
 
 def initialize_mgem_list(config = {})
   unless File.exists? config[:mgem_list]
+    puts "Loading fresh GEM list..."
     `git clone #{GEMS_REPO} #{config[:mgem_list]}`
+    puts "done!"
   end
 
   unless File.exists? config[:mgem_active]
@@ -110,8 +113,20 @@ class MrbgemList
   end
 
   def update!
+    temp_stderr, $stderr = $stderr, StringIO.new
     git_dir = [@config[:mgem_list], '.git'].join File::SEPARATOR
-    `git --git-dir=#{git_dir} --work-tree=#{@config[:mgem_list]} pull`
+    dir_arg = "--git-dir=#{git_dir} --work-tree=#{@config[:mgem_list]} "
+    current_hash = `git #{dir_arg} log -n 1 --pretty=format:%H`
+    `git #{dir_arg} pull`
+    result = `git #{dir_arg} log #{current_hash}..HEAD --pretty=format:''`
+    count = result.lines.count
+    if count == 0 
+      puts "No new GEMs."
+    else
+      puts "The GEM list was updated!"
+    end
+  ensure
+    $stderr = temp_stderr
   end
 
   private

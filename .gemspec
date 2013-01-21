@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'mgem'
-  s.version     = '0.0.4'
+  s.version     = '0.1.0'
   s.summary     = 'A program to manage GEMs for mruby.'
   s.description = 'mgem helps you search and find GEMs specifically written for mruby. It also supports by creating a mruby build configuration.'
   s.author      = 'Daniel Bovensiepen'
