@@ -28,6 +28,55 @@ def list_active_gems(current_gems)
   puts
 end
 
+def get_toolchain
+  puts <<__TOOLCHAIN_SELECT__
+
+Please choose your toolchain:
+  'gcc' for GNU Compiler Collection
+  'clang' for LLVM C Compiler
+  'vs' for Visual Studio 2012 on Windows
+
+__TOOLCHAIN_SELECT__
+
+  print 'Toolchain: '
+  STDOUT.flush
+  toolchain = case STDIN.gets.chomp
+  when 'vs'
+    'vs2012'
+  when 'clang'
+    'clang'
+  when 'gcc'
+    'gcc'
+  else
+    puts <<__ERROR__
+
+Your input "#{toolchain}" wasn't valid.
+Fallback to GCC toolchain!
+__ERROR__
+
+    'gcc'
+  end
+
+  toolchain
+end
+
+def get_binaries
+  puts
+  print 'Compile mrbc? (y/n): '
+  mrbc = STDIN.gets.chomp
+  print 'Compile mruby? (y/n): '
+  mruby = STDIN.gets.chomp
+  print 'Compile mirb? (y/n): '
+  mirb = STDIN.gets.chomp
+
+  binaries = []
+  binaries << 'mrbc' unless mrbc == 'n'
+  binaries << 'mruby' unless mruby == 'n'
+  binaries << 'mirb' unless mirb == 'n'
+
+  binaries.join ' '
+end
+
 if ARGV[0] == 'info' or ARGV[0] == 'detail'
   puts "Detail information of '#{ARGV[1]}':"
   gems.search(ARGV[1], :name).each {|gem| detail_info_proc.call(gem) }
@@ -61,34 +110,13 @@ elsif ARGV[0] == 'update'
     puts "#{new_gems} new GEMs!"
   end
 elsif ARGV[0] == 'config'
-  puts <<__TOOLCHAIN_SELECT__
-
-Please choose your toolchain:
-  'gcc' for GNU Compiler Collection
-  'clang' for LLVM C Compiler
-  'vs' for Visual Studio 2012 on Windows
-
-__TOOLCHAIN_SELECT__
-
-  print 'Toolchain: '
-  STDOUT.flush
-  toolchain = case STDIN.gets.chomp
-  when 'vs'
-    'vs2012'
-  when 'clang'
-    'clang'
-  when 'gcc'
-    'gcc'
+  if ARGV[1] == 'default'
+    toolchain = 'gcc'
+    binaries = 'mrbc mruby mirb'
   else
-    puts <<__ERROR__
-
-Your input "#{toolchain}" wasn't valid.
-Fallback to GCC toolchain!
-__ERROR__
-
-    'gcc'
+    toolchain = get_toolchain
+    binaries = get_binaries
   end
-
   gem_command = gems.active.map do |g|
     "  conf.gem :git => \'#{g.repository}\'"
   end.join("\n")
@@ -104,6 +132,8 @@ __ERROR__
 
 MRuby::Build.new do |conf|
   toolchain :#{toolchain}
+
+  conf.bins = %w(#{binaries})
 
 #{gem_command}
 end
@@ -123,6 +153,7 @@ Usage:
   mgem rm *name*         De-Activate a GEM
   mgem search *pattern*  Search for GEMs
   mgem config            Generate a mruby build config including all active GEMs
+  mgem config default    Same as 'mgem config' but w/o interactive questions
   mgem update            Update the list of GEMs
 
 Website:
