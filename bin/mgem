@@ -10,12 +10,13 @@ end
 
 detail_info_proc = lambda do |obj|
   puts <<INFO
-  Name:        #{obj.name}
-  Author:      #{obj.author}
-  Description: #{obj.description}
-  Website:     #{obj.website}
-  Repository:  #{obj.repository}
-  Protocol:    #{obj.protocol}
+  Name:         #{obj.name}
+  Author:       #{obj.author}
+  Description:  #{obj.description}
+  Website:      #{obj.website}
+  Repository:   #{obj.repository}
+  Repo Options: #{obj.repooptions}
+  Protocol:     #{obj.protocol}
 
 INFO
 end
@@ -118,7 +119,8 @@ elsif ARGV[0] == 'config'
     binaries = get_binaries
   end
   gem_command = gems.active.map do |g|
-    "  conf.gem :git => \'#{g.repository}\'"
+    options = ", :options => \'#{g.repooptions}\'" unless g.repooptions.nil?
+    "  conf.gem :git => \'#{g.repository}\'#{options}"
   end.join("\n")
 
   if gem_command == ''
