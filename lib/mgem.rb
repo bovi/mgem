@@ -61,6 +61,7 @@ class MrbgemData
   def website; @gem_data["website"]; end
   def protocol; @gem_data["protocol"]; end
   def repository; @gem_data["repository"]; end
+  def repooptions; @gem_data["repooptions"]; end
 
   def method_missing(method_name)
     err = "Mrbgem Field \"#{method_name}\" doesn't exist!"
