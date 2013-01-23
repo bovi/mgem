@@ -2,7 +2,7 @@ require 'yaml'
 require 'fileutils'
 require "stringio"
 
-MGEM_VERSION = '0.1.2'
+MGEM_VERSION = '0.1.3'
 
 MGEM_DIR = '.mgem'
 GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
