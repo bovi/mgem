@@ -107,8 +107,12 @@ elsif ARGV[0] == 'update'
   gems.update!
   gems = load_gems
   new_gems = gems.size - amount
-  if new_gems > 0
+  if new_gems == 1
+    puts "1 new GEM!"
+  elsif new_gems > 1
     puts "#{new_gems} new GEMs!"
+  else
+    puts "No new GEM"
   end
 elsif ARGV[0] == 'config'
   if ARGV[1] == 'default'

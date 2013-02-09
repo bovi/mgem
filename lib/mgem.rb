@@ -2,7 +2,7 @@ require 'yaml'
 require 'fileutils'
 require "stringio"
 
-MGEM_VERSION = '0.1.3'
+MGEM_VERSION = '0.1.4'
 
 MGEM_DIR = '.mgem'
 GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
@@ -121,11 +121,6 @@ class MrbgemList
     `git #{dir_arg} pull`
     result = `git #{dir_arg} log #{current_hash}..HEAD --pretty=format:''`
     count = result.lines.count
-    if count == 0 
-      puts "No new GEMs."
-    else
-      puts "The GEM list was updated!"
-    end
   ensure
     $stderr = temp_stderr
   end
