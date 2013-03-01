@@ -63,11 +63,11 @@ end
 
 def get_binaries
   puts
-  print 'Compile mrbc? (y/n): '
+  print 'Compile mrbc? (Y/n): '
   mrbc = STDIN.gets.chomp
-  print 'Compile mruby? (y/n): '
+  print 'Compile mruby? (Y/n): '
   mruby = STDIN.gets.chomp
-  print 'Compile mirb? (y/n): '
+  print 'Compile mirb? (Y/n): '
   mirb = STDIN.gets.chomp
 
   binaries = []
@@ -76,6 +76,25 @@ def get_binaries
   binaries << 'mirb' unless mirb == 'n'
 
   binaries.join ' '
+end
+
+DEFAULT_GEMS = {
+  'Math' => 'mrbgems/mruby-math',
+  'Struct' => 'mrbgems/mruby-struct',
+  'Time' => 'mrbgems/mruby-time'
+}
+
+def get_default_gems
+  puts
+  gems = []
+  DEFAULT_GEMS.each do |gem, path|
+    print "Include '#{gem}' GEM? (Y/n): "
+    question = STDIN.gets.chomp
+    unless question == 'n'
+      gems << path
+    end
+  end
+  gems
 end
 
 if ARGV[0] == 'info' or ARGV[0] == 'detail'
@@ -118,15 +137,24 @@ elsif ARGV[0] == 'config'
   if ARGV[1] == 'default'
     toolchain = 'gcc'
     binaries = 'mrbc mruby mirb'
+    default_gems = DEFAULT_GEMS.each_value.to_a
   else
     toolchain = get_toolchain
     binaries = get_binaries
+    default_gems = get_default_gems
   end
+
+  default_gem_command = default_gems.map do |g|
+    "  conf.gem '#{g}'"
+  end.join("\n") 
+  if default_gem_command == ''
+    default_gem_command = '  # No GEMs activated'
+  end
+
   gem_command = gems.active.map do |g|
     options = ", :options => \'#{g.repooptions}\'" unless g.repooptions.nil?
     "  conf.gem :git => \'#{g.repository}\'#{options}"
   end.join("\n")
-
   if gem_command == ''
     gem_command = '  # No GEMs activated'
   end
@@ -141,6 +169,10 @@ MRuby::Build.new do |conf|
 
   conf.bins = %w(#{binaries})
 
+  # mruby's default GEMs
+#{default_gem_command}
+
+  # user-defined GEMs
 #{gem_command}
 end
 
