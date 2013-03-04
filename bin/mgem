@@ -79,9 +79,10 @@ def get_binaries
 end
 
 DEFAULT_GEMS = {
-  'Math' => 'mrbgems/mruby-math',
-  'Struct' => 'mrbgems/mruby-struct',
-  'Time' => 'mrbgems/mruby-time'
+  'Math' => 'math',
+  'Struct' => 'struct',
+  'Time' => 'time',
+  'sprintf' => 'sprintf'
 }
 
 def get_default_gems
@@ -145,7 +146,7 @@ elsif ARGV[0] == 'config'
   end
 
   default_gem_command = default_gems.map do |g|
-    "  conf.gem '#{g}'"
+    "  conf.gem 'mrbgems/mruby-#{g}'"
   end.join("\n") 
   if default_gem_command == ''
     default_gem_command = '  # No GEMs activated'
