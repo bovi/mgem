@@ -2,37 +2,40 @@ require 'yaml'
 require 'fileutils'
 require "stringio"
 
-MGEM_VERSION = '0.1.7'
+module Mrbgem
+  MGEM_VERSION = '0.1.7'
 
-MGEM_DIR = '.mgem'
-GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
-GEMS_LIST = 'mgem-list'
-GEMS_REPO = 'https://github.com/bovi/mgem-list.git'
+  MGEM_DIR = '.mgem'
+  GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
+  GEMS_LIST = 'mgem-list'
+  GEMS_REPO = 'https://github.com/bovi/mgem-list.git'
 
-def load_gems
-  config = {}
-  config[:mgem_dir] = [ENV["HOME"], MGEM_DIR].join File::SEPARATOR
-  config[:mgem_active] = [config[:mgem_dir], GEMS_ACTIVE].join File::SEPARATOR
-  config[:mgem_list] = [config[:mgem_dir], GEMS_LIST].join File::SEPARATOR
+  def load_gems
+    config = {}
+    config[:mgem_dir] = [ENV["HOME"], MGEM_DIR].join File::SEPARATOR
+    config[:mgem_active] = [config[:mgem_dir], GEMS_ACTIVE].join File::SEPARATOR
+    config[:mgem_list] = [config[:mgem_dir], GEMS_LIST].join File::SEPARATOR
 
-  initialize_mgem_list(config)
+    initialize_mgem_list(config)
 
-  MrbgemList.new(config)
-end
-
-def initialize_mgem_list(config = {})
-  unless File.exists? config[:mgem_list]
-    puts "Loading fresh GEM list..."
-    `git clone #{GEMS_REPO} #{config[:mgem_list]}`
-    puts "done!"
+    MrbgemList.new(config)
   end
 
-  unless File.exists? config[:mgem_active]
-    FileUtils.touch config[:mgem_active]
+  def initialize_mgem_list(config = {})
+    unless File.exists? config[:mgem_list]
+      puts "Loading fresh GEM list..."
+      `git clone #{GEMS_REPO} #{config[:mgem_list]}`
+      puts "done!"
+    end
+
+    unless File.exists? config[:mgem_active]
+      FileUtils.touch config[:mgem_active]
+    end
   end
 end
 
 class MrbgemData
+  extend Mrbgem
   def initialize(gem_data)
     @gem_data = gem_data
   end

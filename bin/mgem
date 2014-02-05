@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require "#{File.dirname(__FILE__)}/../lib/mgem"
+extend Mrbgem
 
 gems = load_gems unless ARGV[0] == 'help'
 
