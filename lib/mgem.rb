@@ -5,6 +5,7 @@ require "stringio"
 module Mrbgem
   MGEM_VERSION = '0.1.7'
 
+  MGEM_HOME = ENV['MGEM_HOME'] ||= ENV['HOME']
   MGEM_DIR = '.mgem'
   GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
   GEMS_LIST = 'mgem-list'
@@ -12,7 +13,7 @@ module Mrbgem
 
   def load_gems
     config = {}
-    config[:mgem_dir] = [ENV["HOME"], MGEM_DIR].join File::SEPARATOR
+    config[:mgem_dir] = [ENV["MGEM_HOME"], MGEM_DIR].join File::SEPARATOR
     config[:mgem_active] = [config[:mgem_dir], GEMS_ACTIVE].join File::SEPARATOR
     config[:mgem_list] = [config[:mgem_dir], GEMS_LIST].join File::SEPARATOR
 
@@ -35,7 +36,6 @@ module Mrbgem
 end
 
 class MrbgemData
-  extend Mrbgem
   def initialize(gem_data)
     @gem_data = gem_data
   end

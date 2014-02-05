@@ -183,7 +183,7 @@ end
 __CONFIG__
 else
   puts <<INFO
-mgem (Version #{MGEM_VERSION}) is a library manager for mruby
+mgem (Version #{Mrbgem::MGEM_VERSION}) is a library manager for mruby
 
 Usage:
   mgem size              How many GEMs are available?
