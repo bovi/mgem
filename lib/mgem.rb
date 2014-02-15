@@ -9,7 +9,7 @@ module Mrbgem
   MGEM_DIR = '.mgem'
   GEMS_ACTIVE = 'GEMS_ACTIVE.lst'
   GEMS_LIST = 'mgem-list'
-  GEMS_REPO = 'https://github.com/bovi/mgem-list.git'
+  GEMS_REPO = 'https://github.com/mruby/mgem-list.git'
 
   def load_gems
     config = {}
