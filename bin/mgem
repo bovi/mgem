@@ -66,30 +66,43 @@ def get_binaries
   puts
   print 'Compile mrbc? (Y/n): '
   mrbc = STDIN.gets.chomp
-  print 'Compile mruby? (Y/n): '
-  mruby = STDIN.gets.chomp
-  print 'Compile mirb? (Y/n): '
-  mirb = STDIN.gets.chomp
 
   binaries = []
   binaries << 'mrbc' unless mrbc == 'n'
-  binaries << 'mruby' unless mruby == 'n'
-  binaries << 'mirb' unless mirb == 'n'
 
   binaries.join ' '
 end
 
-DEFAULT_GEMS = {
+CORE_GEMS = {
+  'irb Executable' => 'bin-mirb',
+  'mruby Executable' => 'bin-mruby',
+  'Array ext' => 'array-ext',
+  'Enumeration ext' => 'enum-ext',
+  'eval' => 'eval',
+  'exit' => 'exit',
+  'Fiber' => 'fiber',
+  'Hash ext' => 'hash-ext',
   'Math' => 'math',
+  'Numeric ext' => 'numeric-ext',
+  'Object ext' => 'object-ext',
+  'ObjectSpace' => 'objectspace',
+  'print' => 'print',
+  'Proc ext' => 'proc-ext',
+  'random' => 'random',
+  'Range ext' => 'range-ext',
+  'sprintf' => 'sprintf',
+  'String ext' => 'string-ext',
+  'String UTF8' => 'string-utf8',
   'Struct' => 'struct',
+  'Symbol ext' => 'symbol-ext',
   'Time' => 'time',
-  'sprintf' => 'sprintf'
+  'Toplevel ext' => 'toplevel-ext'
 }
 
 def get_default_gems
   puts
   gems = []
-  DEFAULT_GEMS.each do |gem, path|
+  CORE_GEMS.each do |gem, path|
     print "Include '#{gem}' GEM? (Y/n): "
     question = STDIN.gets.chomp
     unless question == 'n'
@@ -138,8 +151,8 @@ elsif ARGV[0] == 'update'
 elsif ARGV[0] == 'config'
   if ARGV[1] == 'default'
     toolchain = 'gcc'
-    binaries = 'mrbc mruby mirb'
-    default_gems = DEFAULT_GEMS.each_value.to_a
+    binaries = 'mrbc'
+    default_gems = CORE_GEMS.each_value.to_a
   else
     toolchain = get_toolchain
     binaries = get_binaries
@@ -171,7 +184,7 @@ MRuby::Build.new do |conf|
 
   conf.bins = %w(#{binaries})
 
-  # mruby's default GEMs
+  # mruby's Core GEMs
 #{default_gem_command}
 
   # user-defined GEMs
