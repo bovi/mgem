@@ -11,6 +11,8 @@ module Mrbgem
   GEMS_LIST = 'mgem-list'
   GEMS_REPO = 'https://github.com/mruby/mgem-list.git'
 
+  include Enumerable
+
   def load_gems
     config = {}
     config[:mgem_dir] = [ENV["MGEM_HOME"], MGEM_DIR].join File::SEPARATOR
@@ -65,6 +67,7 @@ class MrbgemData
   def protocol; @gem_data["protocol"]; end
   def repository; @gem_data["repository"]; end
   def repooptions; @gem_data["repooptions"]; end
+  def dependencies; @gem_data['dependencies']; end
 
   def method_missing(method_name)
     err = "Mrbgem Field \"#{method_name}\" doesn't exist!"
