@@ -27,7 +27,8 @@ module Mrbgem
   def initialize_mgem_list(config = {})
     unless File.exists? config[:mgem_list]
       puts "Loading fresh GEM list..."
-      `git clone #{GEMS_REPO} #{config[:mgem_list]}`
+      cmd = %Q(git clone "#{GEMS_REPO}" "#{config[:mgem_list]}")
+      `#{cmd}`
       puts "done!"
     end
 
