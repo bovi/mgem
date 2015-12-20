@@ -1,0 +1,65 @@
+#compdef mgem
+
+_mgem()
+{
+    local context state state_descr line ret=1
+    typeset -A opt_args
+
+    _arguments -C \
+        '1: :__mgem_commands' \
+        '*:: :->args' \
+        && ret=0
+
+    case $state in
+        args)
+            case "$words[1]" in
+                list)
+                    _values -w 'option' active
+                    ;;
+                info)
+                    __all_gems
+                    ;;
+                add)
+                    __all_gems
+                    ;;
+                rm)
+                    __active_gems
+                    ;;
+            esac
+            ;;
+    esac
+
+    return ret
+}
+
+__mgem_commands()
+{
+    _1st_arguments=(
+        'size:How many GEMs are available?'
+        'list:List GEMs'
+        'info:Show detail information abount a GEM'
+        'add:Activate a GEM'
+        'rm:De-Activate a GEM'
+        'search:Search for GEMs'
+        'config:Generate a mruby build config including all active GEMs'
+        'update:Update the list of GEMs'
+    )
+
+    _describe -t commands "commands" _1st_arguments
+}
+
+__all_gems()
+{
+    local -a _gems
+    _gems=( $(find ~/.mgem/mgem-list -name "*.gem" | xargs basename | sed 's/\.gem$//g') )
+    _describe -t mgemnames "gem name" _gems
+}
+
+__active_gems()
+{
+    local -a _gems
+    _gems=( $(mgem list active | awk 'NR>=2 {print $2}') )
+    _describe -t mgemnames "active gems" _gems
+}
+
+_mgem "$@"
