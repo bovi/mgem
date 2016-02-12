@@ -14,7 +14,9 @@ module Mrbgem
   TOOLCHAINS = {
     'gcc' => {:desc => 'GNU Compiler Collection', :id => 'gcc'},
     'clang' => {:desc => 'LLVM C Compiler', :id => 'clang'},
-    'vs' => {:desc => 'Visual Studio 2012', :id => 'vs2012'}
+    'vc' => {:desc => 'Visual C++', :id => 'visualcpp'},
+    'wrt' => {:desc => 'OpenWRT Build environment', :id => 'openwrt'},
+    'ndk' => {:desc => 'Android NDK', :id => 'android'}
   }
 
   include Enumerable
