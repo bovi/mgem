@@ -3,11 +3,16 @@
 require "#{File.dirname(__FILE__)}/../lib/mgem"
 extend Mrbgem
 
-gems = load_gems unless ARGV[0] == 'help'
+main_cmd = ARGV[0]
+arg1 = ARGV[1]
+arg2 = ARGV[2]
+
+gems = load_gems unless main_cmd == 'help'
 
 info_proc = lambda do |obj| 
   puts "  #{obj.name.ljust(30)}#{obj.description}"
 end
+r = lambda { |o| /^(#{1.upto(o.size).map{|x|o[0...(x)]}.join('|')})$/ }
 
 detail_info_proc = lambda do |obj|
   puts <<INFO
@@ -99,30 +104,31 @@ def get_default_gems
   gems
 end
 
-if ARGV[0] == 'info' or ARGV[0] == 'detail'
-  puts "Detail information of '#{ARGV[1]}':"
-  gems.search(ARGV[1], :name).each {|gem| detail_info_proc.call(gem) }
-elsif ARGV[0] == 'size'
+case main_cmd
+when r.('info'), r.('detail')
+  puts "Detail information of '#{arg1}':"
+  gems.search(arg1, :name).each {|gem| detail_info_proc.call(gem) }
+when r.('size')
   puts "Total # of GEMs: #{gems.size}"
-elsif ARGV[0] == 'list'
-  if ARGV[1] == 'active'
+when r.('list')
+  if arg1 =~ r.('active')
     list_active_gems(gems)
   else
     puts "List of all GEMs:"
     gems.each { |gem| info_proc.call(gem) }
   end
-elsif ARGV[0] == 'add'
-  gems.activate(ARGV[1])
+when r.('add')
+  gems.activate(arg1)
   puts
   list_active_gems(gems)
-elsif ARGV[0] == 'rm'
-  gems.deactivate(ARGV[1])
+when r.('rm')
+  gems.deactivate(arg1)
   puts
   list_active_gems(gems)
-elsif ARGV[0] == 'search'
-  puts "Search result for '#{ARGV[1]}':"
-  gems.search(ARGV[1]).each {|gem| info_proc.call(gem) }
-elsif ARGV[0] == 'update'
+when r.('find'), 'search'
+  puts "Search result for '#{arg1}':"
+  gems.search(arg1).each {|gem| info_proc.call(gem) }
+when r.('update')
   puts 'Update list of GEMs...'
   amount = gems.size
   gems.update!
@@ -135,8 +141,8 @@ elsif ARGV[0] == 'update'
   else
     puts "No new GEM"
   end
-elsif ARGV[0] == 'config'
-  if ARGV[1] == 'default'
+when r.('config')
+  if arg1 =~ r.('default')
     toolchain = 'gcc'
     default_gems = CORE_GEMS.each_value.to_a
   else
@@ -144,8 +150,11 @@ elsif ARGV[0] == 'config'
     default_gems = get_default_gems
   end
 
+  write_file = nil
+  [arg1, arg2].each {|x| write_file ||= x =~ r.('write')}
+
   default_gem_command = default_gems.map do |g|
-    "  conf.gem 'mrbgems/mruby-#{g}'"
+    "  conf.gem :core => 'mruby-#{g}'"
   end.join("\n") 
   if default_gem_command == ''
     default_gem_command = '  # No GEMs activated'
@@ -159,7 +168,7 @@ elsif ARGV[0] == 'config'
     gem_command = '  # No GEMs activated'
   end
 
-  puts <<__CONFIG__
+  build_config = <<__CONFIG__
 
 ############################
 # Start of your build_config
@@ -177,20 +186,27 @@ end
 # End of your build_config
 ############################
 __CONFIG__
+
+  if write_file
+    open('./build_config.rb', 'w') {|f| f.puts build_config}
+  else
+    puts build_config
+  end
 else
   puts <<INFO
 mgem (Version #{Mrbgem::MGEM_VERSION}) is a library manager for mruby
 
 Usage:
-  mgem size              How many GEMs are available?
-  mgem list [active]     List GEMs
-  mgem info *pattern*    Show detail information about a GEM
-  mgem add *name*        Activate a GEM
-  mgem rm *name*         De-Activate a GEM
-  mgem search *pattern*  Search for GEMs
-  mgem config            Generate a mruby build config including all active GEMs
-  mgem config default    Same as 'mgem config' but w/o interactive questions
-  mgem update            Update the list of GEMs
+  mgem size             How many GEMs are available?
+  mgem list active      List GEMs
+  mgem info *pattern*   Show detail information about a GEM
+  mgem add *name*       Activate a GEM
+  mgem rm *name*          De-Activate a GEM
+  mgem find *pattern*   Search for GEMs
+  mgem config           Generate a mruby build config including all active GEMs
+              default   Same as 'mgem config' but w/o interactive questions
+              write     Same as 'mgem config' but writes to build_config.rb
+  mgem update           Update the list of GEMs
 
 Website:
   https://github.com/bovi/mgem
