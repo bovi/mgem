@@ -251,7 +251,7 @@ Usage:
   mgem list active      List GEMs
   mgem info *pattern*   Show detail information about a GEM
   mgem add *name*       Activate a GEM
-  mgem rm *name*          De-Activate a GEM
+  mgem rm *name*        De-Activate a GEM
   mgem find *pattern*   Search for GEMs
   mgem config           Generate a mruby build config including all active GEMs
               default   Same as 'mgem config' but w/o interactive questions
