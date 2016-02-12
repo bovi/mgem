@@ -53,40 +53,37 @@ __ERROR__
   toolchain
 end
 
-def get_binaries
-  puts
-  print 'Compile mrbc? (Y/n): '
-  mrbc = STDIN.gets.chomp
-
-  binaries = []
-  binaries << 'mrbc' unless mrbc == 'n'
-
-  binaries.join ' '
-end
-
 CORE_GEMS = {
-  'irb Executable' => 'bin-mirb',
-  'mruby Executable' => 'bin-mruby',
-  'Array ext' => 'array-ext',
-  'Enumeration ext' => 'enum-ext',
+  'Interactive Shell [mirb]' => 'bin-mirb',
+  'Interpreter [mruby]' => 'bin-mruby',
+  'Compiler [mrbc]' => 'bin-mrbc',
+  'Configurator [mruby-config]' => 'bin-mruby',
+  'debugger [mrdb]' => 'bin-debugger',
+
+  'Array Extensions' => 'array-ext',
+  'Enumerator' => 'enumerator',
+  'Enumerator Lazy' => 'enum-lazy',
+  'Enumerator Extensions' => 'enum-ext',
   'eval' => 'eval',
   'exit' => 'exit',
   'Fiber' => 'fiber',
-  'Hash ext' => 'hash-ext',
+  'Hash Extensions' => 'hash-ext',
+  'Kernel Extensions' => 'kernel-ext',
   'Math' => 'math',
-  'Numeric ext' => 'numeric-ext',
-  'Object ext' => 'object-ext',
+  'Numeric Extensions' => 'numeric-ext',
+  'Object Extensions' => 'object-ext',
   'ObjectSpace' => 'objectspace',
   'print' => 'print',
-  'Proc ext' => 'proc-ext',
+  'Proc Extensions' => 'proc-ext',
   'random' => 'random',
-  'Range ext' => 'range-ext',
+  'Range Extensions' => 'range-ext',
   'sprintf' => 'sprintf',
-  'String ext' => 'string-ext',
+  'String Extensions' => 'string-ext',
   'Struct' => 'struct',
-  'Symbol ext' => 'symbol-ext',
+  'Symbol Extensions' => 'symbol-ext',
+  'Test [mrbtest]' => 'test',
   'Time' => 'time',
-  'Toplevel ext' => 'toplevel-ext'
+  'Toplevel Extensions' => 'toplevel-ext'
 }
 
 def get_default_gems
@@ -141,11 +138,9 @@ elsif ARGV[0] == 'update'
 elsif ARGV[0] == 'config'
   if ARGV[1] == 'default'
     toolchain = 'gcc'
-    binaries = 'mrbc'
     default_gems = CORE_GEMS.each_value.to_a
   else
     toolchain = get_toolchain
-    binaries = get_binaries
     default_gems = get_default_gems
   end
 
@@ -171,8 +166,6 @@ elsif ARGV[0] == 'config'
 
 MRuby::Build.new do |conf|
   toolchain :#{toolchain}
-
-  conf.bins = %w(#{binaries})
 
   # mruby's Core GEMs
 #{default_gem_command}
