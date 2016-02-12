@@ -3,7 +3,7 @@ require 'fileutils'
 require "stringio"
 
 module Mrbgem
-  MGEM_VERSION = '0.2.0'
+  MGEM_VERSION = '0.3.0'
 
   MGEM_HOME = ENV['MGEM_HOME'] ||= ENV['HOME']
   MGEM_DIR = '.mgem'
