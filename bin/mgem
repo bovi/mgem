@@ -48,6 +48,7 @@ __TOOLCHAIN_SELECT__
   if Mrbgem::TOOLCHAINS.has_key? toolchain
     toolchain = Mrbgem::TOOLCHAINS[toolchain][:id]
   else
+    toolchain = 'gcc'
     puts <<__ERROR__
 
 Your input "#{toolchain}" wasn't valid.
@@ -62,8 +63,8 @@ CORE_GEMS = {
   'Interactive Shell [mirb]' => 'bin-mirb',
   'Interpreter [mruby]' => 'bin-mruby',
   'Compiler [mrbc]' => 'bin-mrbc',
-  'Configurator [mruby-config]' => 'bin-mruby',
-  'debugger [mrdb]' => 'bin-debugger',
+  'Configurator [mruby-config]' => 'bin-mruby-config',
+  'Debugger [mrdb]' => 'bin-debugger',
 
   'Array Extensions' => 'array-ext',
   'Enumerator' => 'enumerator',
@@ -86,19 +87,42 @@ CORE_GEMS = {
   'String Extensions' => 'string-ext',
   'Struct' => 'struct',
   'Symbol Extensions' => 'symbol-ext',
-  'Test [mrbtest]' => 'test',
   'Time' => 'time',
   'Toplevel Extensions' => 'toplevel-ext'
 }
+
+COMPILE_OPTIONS = {
+  'bin-debugger' => [
+    'conf.cc.defines = %w(MRB_ENABLE_DEBUG_HOOK)'
+  ],
+  'test' => [
+    'conf.enable_bintest',
+    'conf.enable_test'
+  ],
+  'debug' => [
+    'enable_debug'
+  ]
+}
+
+DEFAULT_NO = ['bin-debugger', 'bin-mruby-config']
 
 def get_default_gems
   puts
   gems = []
   CORE_GEMS.each do |gem, path|
-    print "Include '#{gem}' GEM? (Y/n): "
+    y_n = 'Y/n'
+    y_n = 'y/N' if DEFAULT_NO.include? path
+    print "Include '#{gem}' GEM? (#{y_n}): "
     question = STDIN.gets.chomp
-    unless question == 'n'
-      gems << path
+
+    if DEFAULT_NO.include? path
+      if question == 'y'
+        gems << path
+      end
+    else
+      unless question == 'n'
+        gems << path
+      end
     end
   end
   gems
@@ -142,17 +166,38 @@ when r.('update')
     puts "No new GEM"
   end
 when r.('config')
+  test_env = '  # Deactivated!'
+  debug_flags = '  # Deactivated!'
+  toolchain = 'gcc'
   if arg1 =~ r.('default')
-    toolchain = 'gcc'
     default_gems = CORE_GEMS.each_value.to_a
     default_gem_command = "  conf.gembox 'default'"
   else
     toolchain = get_toolchain
+
+    puts
+    print "Build testing environment [mrbtest]? (y/N): "
+    question = STDIN.gets.chomp
+    if question =~ r.('yes')
+      test_env = "#{COMPILE_OPTIONS['test'].map {|o| "  #{o}"}.join("\n")}\n"
+    end
+
+    puts
+    print "Enable debug flags? (y/N): "
+    question = STDIN.gets.chomp
+    if question =~ r.('yes')
+      debug_flags = "#{COMPILE_OPTIONS['debug'].map {|o| "  #{o}"}.join("\n")}\n"
+    end
+
     default_gem_command = get_default_gems.map do |g|
-      "  conf.gem :core => 'mruby-#{g}'"
+      opt = ''
+      if COMPILE_OPTIONS.include? g
+        opt = "#{COMPILE_OPTIONS[g].map {|o| "  #{o}"}.join("\n")}\n"
+      end
+      "#{opt}  conf.gem :core => 'mruby-#{g}'"
     end.join("\n")
     if default_gem_command == ''
-      default_gem_command = '  # No GEMs activated'
+      default_gem_command = '  # No GEMs activated!'
     end
   end
 
@@ -164,7 +209,7 @@ when r.('config')
     "  conf.gem :git => \'#{g.repository}\'#{options}"
   end.join("\n")
   if gem_command == ''
-    gem_command = '  # No GEMs activated'
+    gem_command = '  # No GEMs activated!'
   end
 
   build_config = <<__CONFIG__
@@ -180,6 +225,12 @@ MRuby::Build.new do |conf|
 
   # user-defined GEMs
 #{gem_command}
+
+  # Testing environment
+#{test_env}
+
+  # Debug Flags
+#{debug_flags}
 end
 
 # End of your build_config
