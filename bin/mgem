@@ -92,7 +92,6 @@ CORE_GEMS = {
   'Range ext' => 'range-ext',
   'sprintf' => 'sprintf',
   'String ext' => 'string-ext',
-  'String UTF8' => 'string-utf8',
   'Struct' => 'struct',
   'Symbol ext' => 'symbol-ext',
   'Time' => 'time',
