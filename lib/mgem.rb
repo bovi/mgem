@@ -11,6 +11,12 @@ module Mrbgem
   GEMS_LIST = 'mgem-list'
   GEMS_REPO = 'https://github.com/mruby/mgem-list.git'
 
+  TOOLCHAINS = {
+    'gcc' => {:desc => 'GNU Compiler Collection', :id => 'gcc'},
+    'clang' => {:desc => 'LLVM C Compiler', :id => 'clang'},
+    'vs' => {:desc => 'Visual Studio 2012', :id => 'vs2012'}
+  }
+
   include Enumerable
 
   def load_gems

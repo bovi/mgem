@@ -34,29 +34,20 @@ def get_toolchain
   puts <<__TOOLCHAIN_SELECT__
 
 Please choose your toolchain:
-  'gcc' for GNU Compiler Collection
-  'clang' for LLVM C Compiler
-  'vs' for Visual Studio 2012 on Windows
-
+#{Mrbgem::TOOLCHAINS.map{|x| "  '#{x[0]}' for #{Mrbgem::TOOLCHAINS[x[0]][:desc]}\n" }.join}
 __TOOLCHAIN_SELECT__
 
   print 'Toolchain: '
   STDOUT.flush
-  toolchain = case STDIN.gets.chomp
-  when 'vs'
-    'vs2012'
-  when 'clang'
-    'clang'
-  when 'gcc'
-    'gcc'
+  toolchain = STDIN.gets.chomp
+  if Mrbgem::TOOLCHAINS.has_key? toolchain
+    toolchain = Mrbgem::TOOLCHAINS[toolchain][:id]
   else
     puts <<__ERROR__
 
 Your input "#{toolchain}" wasn't valid.
 Fallback to GCC toolchain!
 __ERROR__
-
-    'gcc'
   end
 
   toolchain
