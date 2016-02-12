@@ -145,20 +145,19 @@ when r.('config')
   if arg1 =~ r.('default')
     toolchain = 'gcc'
     default_gems = CORE_GEMS.each_value.to_a
+    default_gem_command = "  conf.gembox 'default'"
   else
     toolchain = get_toolchain
-    default_gems = get_default_gems
+    default_gem_command = get_default_gems.map do |g|
+      "  conf.gem :core => 'mruby-#{g}'"
+    end.join("\n")
+    if default_gem_command == ''
+      default_gem_command = '  # No GEMs activated'
+    end
   end
 
   write_file = nil
   [arg1, arg2].each {|x| write_file ||= x =~ r.('write')}
-
-  default_gem_command = default_gems.map do |g|
-    "  conf.gem :core => 'mruby-#{g}'"
-  end.join("\n") 
-  if default_gem_command == ''
-    default_gem_command = '  # No GEMs activated'
-  end
 
   gem_command = gems.active.map do |g|
     options = ", :options => \'#{g.repooptions}\'" unless g.repooptions.nil?
