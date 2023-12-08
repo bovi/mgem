@@ -33,14 +33,14 @@ module Mrbgem
   end
 
   def initialize_mgem_list(config = {})
-    unless File.exists? config[:mgem_list]
+    unless File.exist? config[:mgem_list]
       puts "Loading fresh GEM list..."
       cmd = %Q(git clone "#{GEMS_REPO}" "#{config[:mgem_list]}")
       `#{cmd}`
       puts "done!"
     end
 
-    unless File.exists? config[:mgem_active]
+    unless File.exist? config[:mgem_active]
       FileUtils.touch config[:mgem_active]
     end
   end
